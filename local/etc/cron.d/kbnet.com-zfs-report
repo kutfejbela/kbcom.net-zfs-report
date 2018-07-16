@@ -1,4 +1,4 @@
-MAILTO="itgroup@mail-szerver.localdomain"
+MAILTO="zfs@mail-szerver.localdomain"
 MAILFROM="cron@zfs-szerver.localdomain"
 
 0 23 * * *  root  /opt/kbnet.com-zfs-report/usr/share/kbnet.com-zfs-report.bash
