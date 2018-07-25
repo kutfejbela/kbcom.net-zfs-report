@@ -14,6 +14,11 @@ source \"\$CONFIG_FOLDER_MAIN/etc/kbcom.net-zfs-report.conf\"
 
 /bin/chmod a+x "run.bash"
 
+#echo "# ZFS ARCSTATS log file
+#export CONFIG_FILE_ARCSTATSLOG=\"$CONFIG_FOLDER_MAIN/var/kbcom.net-zfs-report.log\"
+#" > etc/kbcom.net-zfs-report.conf
+
+
 echo "MAILTO=\"$MAILTO\"
 MAILFROM=\"$MAILFROM\"
 

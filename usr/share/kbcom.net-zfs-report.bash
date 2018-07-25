@@ -1,8 +1,5 @@
 #!/bin/bash
 
-CONFIG_FOLDER_MAIN="/opt/.github/kbcom.net-zfs-report"
-CONFIG_FILE_ARCSTATSLOG="$CONFIG_FOLDER_MAIN/var/kbcom.net-zfs-report.log"
-
 GLOBAL_FOLDER_SCRIPT=$(/usr/bin/dirname "$0")
 source "$GLOBAL_FOLDER_SCRIPT/.kbcom.net-zfs-report.bash"
 
