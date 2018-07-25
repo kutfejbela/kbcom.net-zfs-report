@@ -1,17 +1,17 @@
-Wed Jul 25 11:20:32 CEST 2018
-demand_data_misses 30082
-misses 79493
-mru_hits 86167
-prefetch_data_misses 2337
-demand_metadata_misses 37603
-hits 227967
+Wed Jul 25 11:36:37 CEST 2018
+demand_data_misses 30553
+misses 81305
+mru_hits 88083
+prefetch_data_misses 2350
+demand_metadata_misses 38931
+hits 241537
 mru_ghost_hits 0
 l2_misses 0
-demand_metadata_hits 84484
-demand_data_hits 135224
+demand_metadata_hits 87924
+demand_data_hits 141281
 prefetch_metadata_misses 9471
 l2_hits 0
-mfu_hits 135268
-prefetch_data_hits 79
-prefetch_metadata_hits 8180
+mfu_hits 145549
+prefetch_data_hits 81
+prefetch_metadata_hits 12251
 mfu_ghost_hits 0
