@@ -1,1 +1,17 @@
--
+Tue Nov  6 23:00:01 CET 2018
+demand_data_misses 207682
+misses 582537
+mru_hits 612977
+prefetch_data_misses 1703
+demand_metadata_misses 365434
+hits 1551169
+mru_ghost_hits 0
+l2_misses 0
+demand_metadata_hits 746186
+demand_data_hits 759836
+prefetch_metadata_misses 7718
+l2_hits 0
+mfu_hits 905786
+prefetch_data_hits 49
+prefetch_metadata_hits 45098
+mfu_ghost_hits 0

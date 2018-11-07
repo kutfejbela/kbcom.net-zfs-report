@@ -3,14 +3,38 @@
 GLOBAL_FOLDER_SCRIPT=$(/usr/bin/dirname "$0")
 source "$GLOBAL_FOLDER_SCRIPT/.kbcom.net-zfs-report.bash"
 
-zpool_print_status
+print_zpool_status
 echo
-zpool_print_verbosediostat
+print_zpool_verbosediostat
+
+declare -A GLOBAL_ARRAY_ARCSTATS
+declare -A GLOBAL_ARRAY_ARCSTATSLOG
+
+convert_file_namevalue "$CONFIG_FILE_ARCSTATS" "GLOBAL_STRING_FIRSTLINE" "GLOBAL_ARRAY_ARCSTATS"
+convert_file_namevalue "$CONFIG_FILE_ARCSTATSLOG" "GLOBAL_STRING_FIRSTLINE" "GLOBAL_ARRAY_ARCSTATSLOG"
+
+GLOBAL_DATETIME_NOW=`printf "%(%c)T"`
+
+
+print_arc_size "GLOBAL_ARRAY_ARCSTATS"
+print_arc_sizebreakdown "GLOBAL_ARRAY_ARCSTATS"
+exit
+print_arc_efficiencytotal "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arc_efficiencybreakdown "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arc_efficiencyhits "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arc_efficiencymisses "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+
+
+
+
+echo "$GLOBAL_DATETIME_NOW"
+
 
 
 IFS=$'\n'
 GLOBAL_DATETIME="$(/bin/date)"
 zfs_getarray_arcstats
+
 
 
 if [ -f "$CONFIG_FILE_ARCSTATSLOG" ]

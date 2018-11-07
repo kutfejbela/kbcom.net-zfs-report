@@ -1,42 +1,116 @@
 #!/bin/bash
 
-declare -A GLOBAL_ARRAY_ARCSTATS
-declare -a GLOBAL_ARRAY_ARCSTATSINDEX
-declare -A GLOBAL_ARRAY_ARCSTATSLOG
+convert_byte_megabyte()
+{
+ local PARAMETER_INTEGER_BYTE="$1"
 
+ local LOCAL_INTEGER_HUNDREDMEGABYTE
 
-zpool_print_status()
+ LOCAL_INTEGER_HUNDREDMEGABYTE="$(( PARAMETER_INTEGER_BYTE * 100 / 1048576 ))"
+
+ echo "${LOCAL_INTEGER_HUNDREDMEGABYTE:0:-2}.${LOCAL_INTEGER_HUNDREDMEGABYTE: -2}"
+}
+
+convert_file_namevalue()
+{
+ local PARAMETER_FILE_SOURCE="$1"
+ local -n PARAMETER_STRING_FIRSTLINE="$2"
+ local -n PARAMETER_ARRAY_RESULT="$3"
+
+ local LOCAL_BOOLEAN_FIRSTLINE
+ local LOCAL_STRING_SOURCE
+ local LOCAL_LINESTRING_SOURCE
+ local LOCAL_STRING_NAME
+ local LOCAL_STRING_VALUE
+
+ PARAMETER_ARRAY_RESULT=()
+ LOCAL_BOOLEAN_FIRSTLINE=true
+
+ LOCAL_STRING_SOURCE=$(<"$PARAMETER_FILE_SOURCE")
+
+ IFS=$'\n'
+ for LOCAL_LINESTRING_SOURCE in $LOCAL_STRING_SOURCE
+ do
+  if $LOCAL_BOOLEAN_FIRSTLINE
+  then
+   PARAMETER_STRING_FIRSTLINE="$LOCAL_LINESTRING_SOURCE"
+   LOCAL_BOOLEAN_FIRSTLINE=false
+   continue
+  fi
+
+  LOCAL_STRING_NAME="${LOCAL_LINESTRING_SOURCE%% *}"
+  LOCAL_STRING_VARIABLE="${LOCAL_LINESTRING_SOURCE##* }"
+
+  PARAMETER_ARRAY_RESULT["$LOCAL_STRING_NAME"]="$LOCAL_STRING_VARIABLE"
+ done
+}
+
+calculate_percentage()
+{
+ local PARAMETER_INTEGER_VALUE="$1"
+ local PARAMETER_INTEGER_100PERCENTAGE="$2"
+
+ local LOCAL_INTEGER_HUNDREDPERCENTAGE
+
+ LOCAL_INTEGER_HUNDREDPERCENTAGE="$(( PARAMETER_INTEGER_VALUE * 10000 / $PARAMETER_INTEGER_100PERCENTAGE ))"
+
+ echo "${LOCAL_INTEGER_HUNDREDPERCENTAGE:0:-2}.${LOCAL_INTEGER_HUNDREDPERCENTAGE: -2}"
+}
+
+print_zpool_status()
 {
  /sbin/zpool status
 }
 
-zpool_print_verbosediostat()
+print_zpool_verbosediostat()
 {
  /sbin/zpool iostat -v
 }
 
-zfs_getarray_arcstats()
+print_arc_size()
 {
- local LOCAL_ARRAY_ARCSTATS
- local LOCAL_ITEMSTRING_ARCSTATS
- local LOCAL_STRING_ARCSTATSVARIABLENAME
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
 
- LOCAL_ARRAY_ARCSTATS=( $(/bin/grep -e 'hits ' -e 'misses ' --no-group-separator /proc/spl/kstat/zfs/arcstats) )
-
- for LOCAL_ITEMSTRING_ARCSTATS in "${LOCAL_ARRAY_ARCSTATS[@]}"
- do
-  LOCAL_STRING_ARCSTATSVARIABLENAME="${LOCAL_ITEMSTRING_ARCSTATS%% *}"
-
-  if [ ${LOCAL_STRING_ARCSTATSVARIABLENAME: -4} == "hits" ]
-  then
-   GLOBAL_ARRAY_ARCSTATSINDEX=("${GLOBAL_ARRAY_ARCSTATSINDEX[@]}" "$LOCAL_STRING_ARCSTATSVARIABLENAME")
-  fi
-
-  GLOBAL_ARRAY_ARCSTATS["$LOCAL_STRING_ARCSTATSVARIABLENAME"]="${LOCAL_ITEMSTRING_ARCSTATS##* }"
- done
+ echo "
+Arc Size:
+ Current Size (size):   ${PARAMETER_ARRAY_ARCSTATS[size]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[size]}) MB)
+ Target Size (c):       ${PARAMETER_ARRAY_ARCSTATS[c]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c]}) MB)
+ Minimum Size (c_min):  ${PARAMETER_ARRAY_ARCSTATS[c_min]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c_min]}) MB)
+ Maximum Size (c_max):  ${PARAMETER_ARRAY_ARCSTATS[c_max]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c_max]}) MB)"
 }
 
-zfs_getdate_arcstatslog()
+print_arc_sizebreakdown()
+{
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
+
+ local LOCAL_INTEGER_MFU
+
+ LOCAL_INTEGER_MFU=$(( ${PARAMETER_ARRAY_ARCSTATS[c]} - ${PARAMETER_ARRAY_ARCSTATS[p]} ))
+
+ echo "
+ARC Size Breakdown:
+ Most Recently Used Cache Size (p):     ${PARAMETER_ARRAY_ARCSTATS[p]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[p]}) MB - $(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[p]} ${PARAMETER_ARRAY_ARCSTATS[c]})%)
+ Most Frequently Used Cache Size (c-p): $LOCAL_INTEGER_MFU ($(convert_byte_megabyte $LOCAL_INTEGER_MFU) MB - $(calculate_percentage $LOCAL_INTEGER_MFU ${PARAMETER_ARRAY_ARCSTATS[c]})%)"
+}
+
+print_arc_efficiencytotal()
+{
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
+ local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+2zfs_getdate_arcstatslog()
 {
  local LOCAL_FILE_ARCSTATSLOG="$1"
 
