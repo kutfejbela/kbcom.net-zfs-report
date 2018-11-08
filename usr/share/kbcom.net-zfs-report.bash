@@ -19,10 +19,12 @@ GLOBAL_DATETIME_NOW=`printf "%(%c)T"`
 print_arc_size "GLOBAL_ARRAY_ARCSTATS"
 print_arc_sizebreakdown "GLOBAL_ARRAY_ARCSTATS"
 print_arc_efficiencytotal "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
-exit
 print_arc_efficiencybreakdown "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+#print_arc_efficiencycache "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 print_arc_efficiencyhits "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 print_arc_efficiencymisses "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arc_efficiencyl2 "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+exit
 
 
 

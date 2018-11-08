@@ -52,7 +52,27 @@ calculate_percentage()
 
  local LOCAL_INTEGER_HUNDREDPERCENTAGE
 
+ if [ $PARAMETER_INTEGER_VALUE -eq 0 ]
+ then
+  echo "0.00"
+  return
+ fi
+
+ if [ $PARAMETER_INTEGER_100PERCENTAGE -eq 0 ]
+ then
+  echo "0.00"
+  return
+ fi
+
  LOCAL_INTEGER_HUNDREDPERCENTAGE="$(( PARAMETER_INTEGER_VALUE * 10000 / $PARAMETER_INTEGER_100PERCENTAGE ))"
+
+ if [ $LOCAL_INTEGER_HUNDREDPERCENTAGE -eq 0 ]
+ then
+  echo "0.00"
+  return
+ fi
+
+ LOCAL_INTEGER_HUNDREDPERCENTAGE=$(printf "%03d" $LOCAL_INTEGER_HUNDREDPERCENTAGE)
 
  echo "${LOCAL_INTEGER_HUNDREDPERCENTAGE:0:-2}.${LOCAL_INTEGER_HUNDREDPERCENTAGE: -2}"
 }
@@ -71,12 +91,16 @@ print_arc_size()
 {
  local -n PARAMETER_ARRAY_ARCSTATS="$1"
 
- echo "
+ echo -e "
 Arc Size:
- Current Size (size):   ${PARAMETER_ARRAY_ARCSTATS[size]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[size]}) MB)
- Target Size (c):       ${PARAMETER_ARRAY_ARCSTATS[c]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c]}) MB)
- Minimum Size (c_min):  ${PARAMETER_ARRAY_ARCSTATS[c_min]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c_min]}) MB)
- Maximum Size (c_max):  ${PARAMETER_ARRAY_ARCSTATS[c_max]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c_max]}) MB)"
+ \u2022 Current Size (size):
+      ${PARAMETER_ARRAY_ARCSTATS[size]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[size]}) MB)
+ \u2022 Target Size (c):
+      ${PARAMETER_ARRAY_ARCSTATS[c]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c]}) MB)
+ \u2022 Minimum Size (c_min):
+      ${PARAMETER_ARRAY_ARCSTATS[c_min]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c_min]}) MB)
+ \u2022 Maximum Size (c_max):
+      ${PARAMETER_ARRAY_ARCSTATS[c_max]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[c_max]}) MB)"
 }
 
 print_arc_sizebreakdown()
@@ -87,10 +111,12 @@ print_arc_sizebreakdown()
 
  LOCAL_INTEGER_MFU=$(( ${PARAMETER_ARRAY_ARCSTATS[c]} - ${PARAMETER_ARRAY_ARCSTATS[p]} ))
 
- echo "
+ echo -e "
 ARC Size Breakdown:
- Most Recently Used Cache Size (p):     ${PARAMETER_ARRAY_ARCSTATS[p]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[p]}) MB - $(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[p]} ${PARAMETER_ARRAY_ARCSTATS[c]})%)
- Most Frequently Used Cache Size (c-p): $LOCAL_INTEGER_MFU ($(convert_byte_megabyte $LOCAL_INTEGER_MFU) MB - $(calculate_percentage $LOCAL_INTEGER_MFU ${PARAMETER_ARRAY_ARCSTATS[c]})%)"
+ \u2022 Most Recently Used Cache Size (p):
+      ${PARAMETER_ARRAY_ARCSTATS[p]} ($(convert_byte_megabyte ${PARAMETER_ARRAY_ARCSTATS[p]}) MB - $(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[p]} ${PARAMETER_ARRAY_ARCSTATS[c]})%)
+ \u2022 Most Frequently Used Cache Size (c-p):
+      $LOCAL_INTEGER_MFU ($(convert_byte_megabyte $LOCAL_INTEGER_MFU) MB - $(calculate_percentage $LOCAL_INTEGER_MFU ${PARAMETER_ARRAY_ARCSTATS[c]})%)"
 }
 
 print_arc_efficiencytotal()
@@ -100,217 +126,141 @@ print_arc_efficiencytotal()
 
  local LOCAL_INTEGER_TOTAL
  local LOCAL_INTEGER_TOTALLOG
+ local LOCAL_INTEGER_TOTALDELTA
+ local LOCAL_INTEGER_HITSDELTA
+ local LOCAL_INTEGER_MISSESDELTA
  local LOCAL_INTEGER_REALHITS
  local LOCAL_INTEGER_REALHITSLOG
+ local LOCAL_INTEGER_REALHITSDELTA
 
  LOCAL_INTEGER_TOTAL=$(( ${PARAMETER_ARRAY_ARCSTATS[hits]} + ${PARAMETER_ARRAY_ARCSTATS[misses]} ))
  LOCAL_INTEGER_TOTALLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[misses]} ))
+ LOCAL_INTEGER_TOTALDELTA=$(( $LOCAL_INTEGER_TOTAL - $LOCAL_INTEGER_TOTALLOG))
+
+ LOCAL_INTEGER_HITSDELTA=$(( ${PARAMETER_ARRAY_ARCSTATS[hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[hits]} ))
+ LOCAL_INTEGER_MISSESDELTA=$(( ${PARAMETER_ARRAY_ARCSTATS[misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[misses]} ))
+
  LOCAL_INTEGER_REALHITS=$(( ${PARAMETER_ARRAY_ARCSTATS[mru_hits]} + ${PARAMETER_ARRAY_ARCSTATS[mfu_hits]} ))
  LOCAL_INTEGER_REALHITSLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[mru_hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[mfu_hits]} ))
+ LOCAL_INTEGER_REALHITSDELTA=$(( $LOCAL_INTEGER_REALHITS - $LOCAL_INTEGER_REALHITSLOG))
 
  echo -e "
 ARC Efficiency Total:
- Cache Access Total:                    $LOCAL_INTEGER_TOTAL [$LOCAL_INTEGER_TOTALLOG - \u0394$(( $LOCAL_INTEGER_TOTAL - $LOCAL_INTEGER_TOTALLOG))]
- Cache Hit Ratio (hits):                ${PARAMETER_ARRAY_ARCSTATS[hits]} [${PARAMETER_ARRAY_ARCSTATSLOG[hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[hits]} ))]
- Cache Miss Ratio (misses):             ${PARAMETER_ARRAY_ARCSTATS[misses]} [${PARAMETER_ARRAY_ARCSTATSLOG[misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[misses]} ))]
- Real Hit Ratio (mru_hits + mfu_hits):  $LOCAL_INTEGER_REALHITS [$LOCAL_INTEGER_REALHITSLOG - \u0394$(( $LOCAL_INTEGER_REALHITS - $LOCAL_INTEGER_REALHITSLOG))]"
+ \u2022 Cache Access Total:
+      $LOCAL_INTEGER_TOTAL \u279f $LOCAL_INTEGER_TOTALLOG - \u0394$LOCAL_INTEGER_TOTALDELTA
+ \u2022 Cache Hits (hits):
+      ${PARAMETER_ARRAY_ARCSTATS[hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[hits]} $LOCAL_INTEGER_TOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[hits]} - \u0394$LOCAL_INTEGER_HITSDELTA (\u0394$(calculate_percentage $LOCAL_INTEGER_HITSDELTA $LOCAL_INTEGER_TOTALDELTA)%)
+ \u2022 Cache Misses (misses):
+      ${PARAMETER_ARRAY_ARCSTATS[misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[misses]} $LOCAL_INTEGER_TOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[misses]} - \u0394$LOCAL_INTEGER_MISSESDELTA (\u0394$(calculate_percentage $LOCAL_INTEGER_MISSESDELTA $LOCAL_INTEGER_TOTALDELTA)%)
+ \u2022 Real Hits (mru_hits + mfu_hits):
+      $LOCAL_INTEGER_REALHITS ($(calculate_percentage $LOCAL_INTEGER_REALHITS $LOCAL_INTEGER_TOTAL)%) \u279f $LOCAL_INTEGER_REALHITSLOG - \u0394$LOCAL_INTEGER_REALHITSDELTA (\u0394$(calculate_percentage $LOCAL_INTEGER_REALHITSDELTA $LOCAL_INTEGER_TOTALDELTA)%)"
 }
 
-
-
-
-
-
-
-
-
-
-
-
-2zfs_getdate_arcstatslog()
+print_arc_efficiencybreakdown()
 {
- local LOCAL_FILE_ARCSTATSLOG="$1"
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
+ local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
 
- /usr/bin/head -n 1 "$LOCAL_FILE_ARCSTATSLOG"
+ local LOCAL_INTEGER_DEMANDDATATOTAL
+ local LOCAL_INTEGER_DEMANDDATATOTALLOG
+ local LOCAL_INTEGER_DEMANDMETADATATOTAL
+ local LOCAL_INTEGER_DEMANDMETADATATOTALLOG
+ local LOCAL_INTEGER_PREFETCHDATATOTAL
+ local LOCAL_INTEGER_PREFETCHDATATOTALLOG
+ local LOCAL_INTEGER_PREFETCHMETADATATOTAL
+ local LOCAL_INTEGER_PREFETCHMETADATATOTALLOG
+
+ LOCAL_INTEGER_DEMANDDATATOTAL=$(( ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} + ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} ))
+ LOCAL_INTEGER_DEMANDDATATOTALLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} ))
+ LOCAL_INTEGER_DEMANDMETADATATOTAL=$(( ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} + ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} ))
+ LOCAL_INTEGER_DEMANDMETADATATOTALLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} ))
+ LOCAL_INTEGER_PREFETCHDATATOTAL=$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} + ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} ))
+ LOCAL_INTEGER_PREFETCHDATATOTALLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} ))
+ LOCAL_INTEGER_PREFETCHMETADATATOTAL=$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} + ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} ))
+ LOCAL_INTEGER_PREFETCHMETADATATOTALLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} ))
+
+ echo -e "
+ARC Efficiency Breakdown:
+ \u2022 Demand Data Hits (demand_data_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} $LOCAL_INTEGER_DEMANDDATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} $LOCAL_INTEGER_DEMANDDATATOTALLOG)%)
+ \u2022 Demand Data Misses (demand_data_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} $LOCAL_INTEGER_DEMANDDATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} $LOCAL_INTEGER_DEMANDDATATOTALLOG)%)
+ \u2022 Demand Metadata Hits (demand_metadata_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} $LOCAL_INTEGER_DEMANDMETADATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} $LOCAL_INTEGER_DEMANDMETADATATOTALLOG)%)
+ \u2022 Demand Metadata Misses (demand_metadata_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} $LOCAL_INTEGER_DEMANDMETADATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} $LOCAL_INTEGER_DEMANDMETADATATOTALLOG)%)
+ \u2022 Prefetch Data Hits (prefetch_data_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} $LOCAL_INTEGER_PREFETCHDATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} $LOCAL_INTEGER_PREFETCHDATATOTALLOG)%)
+ \u2022 Prefetch Data Misses (prefetch_data_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} $LOCAL_INTEGER_PREFETCHDATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} $LOCAL_INTEGER_PREFETCHDATATOTALLOG)%)
+ \u2022 Prefetch Metadata Hits (prefetch_metadata_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} $LOCAL_INTEGER_PREFETCHMETADATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} $LOCAL_INTEGER_PREFETCHMETADATATOTALLOG)%)
+ \u2022 Prefetch Metadata Misses (prefetch_metadata_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} $LOCAL_INTEGER_PREFETCHMETADATATOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} $LOCAL_INTEGER_PREFETCHMETADATATOTALLOG)%)"
 }
 
-zfs_getarray_arcstatslog()
+print_arc_efficiencyhits()
 {
- local LOCAL_FILE_ARCSTATSLOG="$1"
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
+ local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
 
- local LOCAL_ARRAY_ARCSTATSLOG
- local LOCAL_ITEMSTRING_ARCSTATSLOG
-
- LOCAL_ARRAY_ARCSTATSLOG=( $(/bin/cat "$LOCAL_FILE_ARCSTATSLOG") )
-
- for LOCAL_ITEMSTRING_ARCSTATSLOG in "${LOCAL_ARRAY_ARCSTATSLOG[@]}"
- do
-  GLOBAL_ARRAY_ARCSTATSLOG["${LOCAL_ITEMSTRING_ARCSTATSLOG%% *}"]="${LOCAL_ITEMSTRING_ARCSTATSLOG##* }"
- done
+ echo -e "
+ARC Efficiency Hits:
+ \u2022 Cache Hits (hits):
+      ${PARAMETER_ARRAY_ARCSTATS[hits]} \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[hits]} ))
+ \u2022 Demand Data Hits (demand_data_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_data_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%)
+ \u2022 Demand Metadata Hits (demand_metadata_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%)
+ \u2022 Prefetch Data Hits (prefetch_data_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%)
+ \u2022 Prefetch Metadata Hits (prefetch_metadata_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_hits]} ${PARAMETER_ARRAY_ARCSTATS[hits]})%)"
 }
 
-zfs_write_arcstatslog()
+print_arc_efficiencymisses()
 {
- local LOCAL_STRING_DATETIME="$1"
- local LOCAL_FILE_ARCSTATSLOG="$2"
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
+ local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
 
- local LOCAL_ITEMSTRING_ARCSTATSLOG
-
- echo "$LOCAL_STRING_DATETIME" 1>"$LOCAL_FILE_ARCSTATSLOG"
-
- for LOCAL_ITEMKEYSTRING_ARCSTATS in "${!GLOBAL_ARRAY_ARCSTATS[@]}"
- do
-  echo "$LOCAL_ITEMKEYSTRING_ARCSTATS ${GLOBAL_ARRAY_ARCSTATS[$LOCAL_ITEMKEYSTRING_ARCSTATS]}" 1>>"$LOCAL_FILE_ARCSTATSLOG"
- done
+ echo -e "
+ARC Efficiency Misses:
+ \u2022 Cache Misses (misses):
+      ${PARAMETER_ARRAY_ARCSTATS[misses]} \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[misses]} ))
+ \u2022 Demand Data Misses (demand_data_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_data_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_data_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%)
+ \u2022 Demand Metadata Misses (demand_metadata_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[demand_metadata_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[demand_metadata_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%)
+ \u2022 Prefetch Data Misses (prefetch_data_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_data_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_data_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%)
+ \u2022 Prefetch Metadata Misses (prefetch_metadata_misses):
+      ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} - \u0394$(( ${PARAMETER_ARRAY_ARCSTATS[prefetch_metadata_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} )) (\u0394$(calculate_percentage ${PARAMETER_ARRAY_ARCSTATSLOG[prefetch_metadata_misses]} ${PARAMETER_ARRAY_ARCSTATS[misses]})%)"
 }
 
-zfs_print_arcstats()
+print_arc_efficiencyl2()
 {
- local LOCAL_ITEM_ARCSTATINDEX
- local LOCAL_NUMBER_HITSVALUE
- local LOCAL_NUMBER_MISSESVALUE
- local LOCAL_RATIO_HITS
- local LOCAL_RATIO_MISSES
+ local -n PARAMETER_ARRAY_ARCSTATS="$1"
+ local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
 
- for LOCAL_ITEM_ARCSTATINDEX in "${GLOBAL_ARRAY_ARCSTATSINDEX[@]}"
- do
-  echo
+ local LOCAL_INTEGER_L2TOTAL
+ local LOCAL_INTEGER_L2TOTALLOG
+ local LOCAL_INTEGER_L2TOTALDELTA
+ local LOCAL_INTEGER_L2HITSDELTA
+ local LOCAL_INTEGER_L2MISSESDELTA
 
-  if [ -z "${GLOBAL_ARRAY_ARCSTATS[${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses]}" ]
-  then
-   echo "$LOCAL_ITEM_ARCSTATINDEX: ${GLOBAL_ARRAY_ARCSTATS[$LOCAL_ITEM_ARCSTATINDEX]}"
-  else
-   LOCAL_NUMBER_HITSVALUE="${GLOBAL_ARRAY_ARCSTATS[$LOCAL_ITEM_ARCSTATINDEX]}"
-   LOCAL_NUMBER_MISSESVALUE="${GLOBAL_ARRAY_ARCSTATS[${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses]}"
+ LOCAL_INTEGER_L2TOTAL=$(( ${PARAMETER_ARRAY_ARCSTATS[l2_hits]} + ${PARAMETER_ARRAY_ARCSTATS[l2_misses]} ))
+ LOCAL_INTEGER_L2TOTALLOG=$(( ${PARAMETER_ARRAY_ARCSTATSLOG[l2_hits]} + ${PARAMETER_ARRAY_ARCSTATSLOG[l2_misses]} ))
+ LOCAL_INTEGER_L2TOTALDELTA=$(( $LOCAL_INTEGER_L2TOTAL - $LOCAL_INTEGER_L2TOTALLOG))
 
-   echo "$LOCAL_ITEM_ARCSTATINDEX: $LOCAL_NUMBER_HITSVALUE"
-   echo "${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses: $LOCAL_NUMBER_MISSESVALUE"
+ LOCAL_INTEGER_L2HITSDELTA=$(( ${PARAMETER_ARRAY_ARCSTATS[l2_hits]} - ${PARAMETER_ARRAY_ARCSTATSLOG[l2_hits]} ))
+ LOCAL_INTEGER_L2MISSESDELTA=$(( ${PARAMETER_ARRAY_ARCSTATS[l2_misses]} - ${PARAMETER_ARRAY_ARCSTATSLOG[l2_misses]} ))
 
-   if [ "$LOCAL_NUMBER_HITSVALUE" -ne 0 ] 2>/dev/null && [ "$LOCAL_NUMBER_MISSESVALUE" -ne 0 ] 2>/dev/null
-   then
-    let "LOCAL_RATIO_HITS=($LOCAL_NUMBER_HITSVALUE*10000)/($LOCAL_NUMBER_HITSVALUE+$LOCAL_NUMBER_MISSESVALUE)"
-    let "LOCAL_RATIO_MISSES=($LOCAL_NUMBER_MISSESVALUE*10000)/($LOCAL_NUMBER_HITSVALUE+$LOCAL_NUMBER_MISSESVALUE)"
-
-    echo "hit ration: ${LOCAL_RATIO_HITS:0:-2}.${LOCAL_RATIO_HITS: -2}%"
-    echo "miss ration: ${LOCAL_RATIO_MISSES:0:-2}.${LOCAL_RATIO_MISSES: -2}%"
-   fi
-  fi
- done
-}
-
-zfs_print_arcstatslog()
-{
- local LOCAL_ITEM_ARCSTATINDEX
- local LOCAL_NUMBER_HITSVALUE
- local LOCAL_NUMBER_MISSESVALUE
- local LOCAL_RATIO_HITS
- local LOCAL_RATIO_MISSES
- local LOCAL_NUMBER_HITSLOGVALUE
- local LOCAL_NUMBER_MISSESLOGVALUE
- local LOCAL_NUMBER_HITSDELTA
- local LOCAL_NUMBER_MISSESDELTA
- local LOCAL_RATIO_HITSDELTA
- local LOCAL_RATIO_MISSESDELTA
-
- for LOCAL_ITEM_ARCSTATINDEX in "${GLOBAL_ARRAY_ARCSTATSINDEX[@]}"
- do
-  echo
-
-  if [ -z "${GLOBAL_ARRAY_ARCSTATS[${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses]}" ]
-  then
-   echo -n "$LOCAL_ITEM_ARCSTATINDEX: ${GLOBAL_ARRAY_ARCSTATS[$LOCAL_ITEM_ARCSTATINDEX]}"
-
-   if [ ! -z "${GLOBAL_ARRAY_ARCSTATSLOG[$LOCAL_ITEM_ARCSTATINDEX]}" ]
-   then
-    echo " (${GLOBAL_ARRAY_ARCSTATSLOG[$LOCAL_ITEM_ARCSTATINDEX]})"
-   else
-    echo
-   fi
-  else
-   LOCAL_NUMBER_HITSVALUE="${GLOBAL_ARRAY_ARCSTATS[$LOCAL_ITEM_ARCSTATINDEX]}"
-   LOCAL_NUMBER_HITSLOGVALUE="${GLOBAL_ARRAY_ARCSTATSLOG[$LOCAL_ITEM_ARCSTATINDEX]}"
-   LOCAL_NUMBER_MISSESVALUE="${GLOBAL_ARRAY_ARCSTATS[${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses]}"
-   LOCAL_NUMBER_MISSESLOGVALUE="${GLOBAL_ARRAY_ARCSTATSLOG[${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses]}"
-
-   echo -n "$LOCAL_ITEM_ARCSTATINDEX: $LOCAL_NUMBER_HITSVALUE"
-
-   if [ ! -z "$LOCAL_NUMBER_HITSLOGVALUE" ]
-   then
-    echo " ($LOCAL_NUMBER_HITSLOGVALUE)"
-   else
-    echo
-   fi
-
-   echo -n "${LOCAL_ITEM_ARCSTATINDEX:0:-4}misses: $LOCAL_NUMBER_MISSESVALUE"
-
-   if [ ! -z "$LOCAL_NUMBER_MISSESLOGVALUE" ]
-   then
-    echo " ($LOCAL_NUMBER_MISSESLOGVALUE)"
-   else
-    echo
-   fi
-
-   if [ "$LOCAL_NUMBER_HITSVALUE" -ne 0 ] 2>/dev/null && [ "$LOCAL_NUMBER_MISSESVALUE" -ne 0 ] 2>/dev/null
-   then
-    let "LOCAL_RATIO_HITS=($LOCAL_NUMBER_HITSVALUE*10000)/($LOCAL_NUMBER_HITSVALUE+$LOCAL_NUMBER_MISSESVALUE)"
-    let "LOCAL_RATIO_MISSES=($LOCAL_NUMBER_MISSESVALUE*10000)/($LOCAL_NUMBER_HITSVALUE+$LOCAL_NUMBER_MISSESVALUE)"
-   else
-    LOCAL_RATIO_HITS=""
-    LOCAL_RATIO_MISSES=""
-   fi
-
-   if [ "$LOCAL_NUMBER_HITSLOGVALUE" -ne 0 ] 2>/dev/null && [ "$LOCAL_NUMBER_MISSESLOGVALUE" -ne 0 ] 2>/dev/null
-   then
-    let "LOCAL_NUMBER_HITSDELTA=$LOCAL_NUMBER_HITSVALUE-$LOCAL_NUMBER_HITSLOGVALUE"
-    let "LOCAL_NUMBER_MISSESDELTA=$LOCAL_NUMBER_MISSESVALUE-$LOCAL_NUMBER_MISSESLOGVALUE"
-
-    if [ "$LOCAL_NUMBER_HITSDELTA" -ne 0 ] 2>/dev/null && [ "$LOCAL_NUMBER_MISSESDELTA" -ne 0 ] 2>/dev/null
-    then
-     let "LOCAL_RATIO_HITSDELTA=($LOCAL_NUMBER_HITSDELTA*10000)/($LOCAL_NUMBER_HITSDELTA+$LOCAL_NUMBER_MISSESDELTA)"
-     let "LOCAL_RATIO_MISSESDELTA=($LOCAL_NUMBER_MISSESDELTA*10000)/($LOCAL_NUMBER_HITSDELTA+$LOCAL_NUMBER_MISSESDELTA)"
-    else
-     LOCAL_RATIO_HITSDELTA=""
-     LOCAL_RATIO_MISSESDELTA=""
-    fi
-   else
-    LOCAL_RATIO_HITSLOG=""
-    LOCAL_RATIO_MISSESLOG=""
-   fi
-
-   if [ ! -z "$LOCAL_RATIO_HITS" ] || [ ! -z "$LOCAL_RATIO_HITSLOG" ]
-   then
-    echo -n "hit ration:"
-
-    if [ ! -z "$LOCAL_RATIO_HITS" ]
-    then
-     echo -n " ${LOCAL_RATIO_HITS:0:-2}.${LOCAL_RATIO_HITS: -2}%"
-    else
-     echo -n " -"
-    fi
-
-    if [ ! -z "$LOCAL_RATIO_HITSDELTA" ]
-    then
-     echo -e " (\u0394${LOCAL_RATIO_HITSDELTA:0:-2}.${LOCAL_RATIO_HITSDELTA: -2}%)"
-    else
-     echo
-    fi
-
-    echo -n "miss ration:"
-
-    if [ ! -z "$LOCAL_RATIO_MISSES" ]
-    then
-     echo -n " ${LOCAL_RATIO_MISSES:0:-2}.${LOCAL_RATIO_MISSES: -2}%"
-    else
-     echo -n " -"
-    fi
-
-    if [ ! -z "$LOCAL_RATIO_MISSESDELTA" ]
-    then
-     echo -e " (\u0394${LOCAL_RATIO_MISSESDELTA:0:-2}.${LOCAL_RATIO_MISSESDELTA: -2}%)"
-    else
-     echo
-    fi
-   fi
-  fi
- done
+ echo -e "
+L2ARC Efficiency:
+ \u2022 L2 Cache Access Total:
+      $LOCAL_INTEGER_L2TOTAL \u279f $LOCAL_INTEGER_L2TOTALLOG - \u0394$LOCAL_INTEGER_L2TOTALDELTA
+ \u2022 L2 Cache Hits (l2_hits):
+      ${PARAMETER_ARRAY_ARCSTATS[l2_hits]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[l2_hits]} $LOCAL_INTEGER_L2TOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[l2_hits]} - \u0394$LOCAL_INTEGER_L2HITSDELTA (\u0394$(calculate_percentage $LOCAL_INTEGER_L2HITSDELTA $LOCAL_INTEGER_L2TOTALDELTA)%)
+ \u2022 L2 Cache Misses (misses):
+      ${PARAMETER_ARRAY_ARCSTATS[l2_misses]} ($(calculate_percentage ${PARAMETER_ARRAY_ARCSTATS[l2_misses]} $LOCAL_INTEGER_L2TOTAL)%) \u279f ${PARAMETER_ARRAY_ARCSTATSLOG[l2_misses]} - \u0394$LOCAL_INTEGER_L2MISSESDELTA (\u0394$(calculate_percentage $LOCAL_INTEGER_L2MISSESDELTA $LOCAL_INTEGER_L2TOTALDELTA)%)"
 }
