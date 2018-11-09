@@ -52,13 +52,13 @@ calculate_percentage()
 
  local LOCAL_INTEGER_HUNDREDPERCENTAGE
 
- if [ $PARAMETER_INTEGER_VALUE -eq 0 ]
+ if [ $PARAMETER_INTEGER_VALUE -le 0 ]
  then
   echo "0.00"
   return
  fi
 
- if [ $PARAMETER_INTEGER_100PERCENTAGE -eq 0 ]
+ if [ $PARAMETER_INTEGER_100PERCENTAGE -le 0 ]
  then
   echo "0.00"
   return
