@@ -16,13 +16,13 @@ convert_file_namevalue "$CONFIG_FILE_ARCSTATSLOG" "GLOBAL_STRING_FIRSTLINE" "GLO
 GLOBAL_DATETIME_NOW=`printf "%(%c)T"`
 
 
-print_arc_size "GLOBAL_ARRAY_ARCSTATS"
-print_arc_sizebreakdown "GLOBAL_ARRAY_ARCSTATS"
-print_arc_efficiencytotal "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
-print_arc_efficiencybreakdown "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
-#print_arc_efficiencycache "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
-print_arc_efficiencyhits "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
-print_arc_efficiencymisses "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arcsize_total "GLOBAL_ARRAY_ARCSTATS"
+print_arcsize_breakdown "GLOBAL_ARRAY_ARCSTATS"
+print_arcefficiency_total "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arcefficiency_breakdown "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arcefficiency_realcachehitsbycachelist "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arcefficiency_cachehitsbydatatype "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arcefficiency_cachemissesbydatatype "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 print_arc_efficiencyl2 "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 exit
 
