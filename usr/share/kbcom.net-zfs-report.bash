@@ -30,7 +30,6 @@ convert_file_namevalue "$CONFIG_FILE_ARCSTATS" "GLOBAL_STRING_FIRSTLINE" "GLOBAL
 convert_file_namevalue "$CONFIG_FILE_ARCSTATSLOG" "GLOBAL_STRING_FIRSTLINE" "GLOBAL_ARRAY_ARCSTATSLOG"
 write_spaceseparatednamevalue "$CONFIG_FILE_ARCSTATSLOG" "$GLOBAL_DATETIME_NOW" "GLOBAL_ARRAY_ARCSTATS"
 
-
 print_system_memory
 print_arcsize_total "GLOBAL_ARRAY_ARCSTATS"
 print_arcsize_breakdown "GLOBAL_ARRAY_ARCSTATS"
