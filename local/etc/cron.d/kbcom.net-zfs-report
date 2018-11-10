@@ -1,5 +1,0 @@
-MAILTO="itgroup@szerver03.petav.local"
-MAILFROM="cron@szerver04.petav.local"
-
-0 23 * * *  root  /opt/kbnet.com-zfs-report/run.bash
-
