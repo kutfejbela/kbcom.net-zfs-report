@@ -9,7 +9,7 @@ write_spaceseparatednamevalue()
  local LOCAL_ITEMKEYSTRING_NAMEVALUE
 
  echo "$LOCAL_STRING_DATETIME" 1>"$LOCAL_FILE_DESTINATION"
- echo "name value"1>>"$LOCAL_FILE_DESTINATION"
+ echo "name value" 1>>"$LOCAL_FILE_DESTINATION"
 
  for LOCAL_ITEMKEYSTRING_NAMEVALUE in "${!LOCAL_ARRAY_NAMEVALUE[@]}"
  do
