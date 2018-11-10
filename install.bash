@@ -147,3 +147,5 @@ MAILFROM=\"$GLOBAL_MAILFROM\"
 " 1>"$GLOBAL_FOLDER_INSTANCE/local/etc/cron.d/kbcom.net-zfs-report"
 
 ln -i -s "$GLOBAL_FOLDER_INSTANCE/local/etc/cron.d/kbcom.net-zfs-report" "/etc/cron.d/zfs-report"
+
+systemctl restart cron
