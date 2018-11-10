@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CONFIG_FOLDER_MAIN="/opt/kbnet.com-zfs-report"
+CONFIG_FOLDER_MAIN="/opt/kbcom.net-zfs-report"
 
 source "$CONFIG_FOLDER_MAIN/etc/kbcom.net-zfs-report.conf"
 
