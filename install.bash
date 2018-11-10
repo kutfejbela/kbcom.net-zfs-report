@@ -87,7 +87,7 @@ then
 fi
 
 echo "Create $GLOBAL_FOLDER_INSTANCE/var/kbcom.net-zfs-report.log file..."
-printf "%(%c)T\n\n" 1>"$GLOBAL_FOLDER_INSTANCE/var/kbcom.net-zfs-report.log"
+printf "%(%c)T\n" 1>"$GLOBAL_FOLDER_INSTANCE/var/kbcom.net-zfs-report.log"
 
 if [ $? -ne 0 ]
 then
@@ -95,7 +95,7 @@ then
  exit 7
 fi
 
-/usr/bin/tail -n +3 "/proc/spl/kstat/zfs/arcstats" 1>>"$GLOBAL_FOLDER_INSTANCE/var/kbcom.net-zfs-report.log"
+/usr/bin/tail -n +2 "/proc/spl/kstat/zfs/arcstats" 1>>"$GLOBAL_FOLDER_INSTANCE/var/kbcom.net-zfs-report.log"
 
 if [ $? -ne 0 ]
 then
