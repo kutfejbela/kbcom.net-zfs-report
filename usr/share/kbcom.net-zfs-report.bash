@@ -31,13 +31,13 @@ convert_file_namevalue "$CONFIG_FILE_ARCSTATSLOG" "GLOBAL_STRING_FIRSTLINE" "GLO
 write_spaceseparatednamevalue "$CONFIG_FILE_ARCSTATSLOG" "$GLOBAL_DATETIME_NOW" "GLOBAL_ARRAY_ARCSTATS"
 
 print_system_memory
-print_arcsize_total "GLOBAL_ARRAY_ARCSTATS"
-print_arcsize_breakdown "GLOBAL_ARRAY_ARCSTATS"
 
 echo "
 ARC log date:
  $GLOBAL_STRING_FIRSTLINE"
 
+print_arcsize_total "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
+print_arcsize_breakdown "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 print_arcefficiency_total "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 print_arcefficiency_breakdown "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
 print_arcefficiency_realcachehitsbycachelist "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
