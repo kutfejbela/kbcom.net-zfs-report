@@ -66,6 +66,8 @@ fi
 echo "Create $GLOBAL_FOLDER_INSTANCE/etc/kbcom.net-zfs-report.conf file..."
 echo "export CONFIG_FILE_ARCSTATSLOG=\"\$CONFIG_FOLDER_MAIN/var/kbcom.net-zfs-report.log\"
 export CONFIG_FILE_ARCSTATS=\"/proc/spl/kstat/zfs/arcstats\"
+
+export CONFIG_EXTERNALCOMMAND_ZPOOL=\"/sbin/zpool\"
 " 1>"$GLOBAL_FOLDER_INSTANCE/etc/kbcom.net-zfs-report.conf"
 
 if [ $? -ne 0 ]
