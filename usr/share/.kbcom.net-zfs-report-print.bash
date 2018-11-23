@@ -662,7 +662,7 @@ L2ARC Efficiency:
  if ! ( [ "$LOCAL_INTEGER_L2HITSDELTAPERCENTAGE" = "0.00" ] && [ "$LOCAL_INTEGER_L2MISSESDELTAPERCENTAGE" = "0.00" ] )
  then
   echo "
-   $(print_percentagebar20 $(( ${LOCAL_INTEGER_L2HITSPERCENTAGE:0:-3} / 5 )) $(printf '\u0394L2 Hits (%*s%s%%)' 6 "$LOCAL_INTEGER_L2HITSDELTAPERCENTAGE") $(printf '\u0394L2 Misses (%*s%s%%)' 6 "$LOCAL_INTEGER_L2MISSESDELTAPERCENTAGE"))"
+   $(print_percentagebar20 $(( ${LOCAL_INTEGER_L2HITSDELTAPERCENTAGE:0:-3} / 5 )) $(printf '\u0394L2 Hits (%*s%s%%)' 6 "$LOCAL_INTEGER_L2HITSDELTAPERCENTAGE") $(printf '\u0394L2 Misses (%*s%s%%)' 6 "$LOCAL_INTEGER_L2MISSESDELTAPERCENTAGE"))"
  else
   echo
  fi
