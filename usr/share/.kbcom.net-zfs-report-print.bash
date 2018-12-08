@@ -617,7 +617,7 @@ ARC Efficiency - Cache Misses by Data Type:
  fi
 }
 
-print_arc_efficiencyl2()
+print_arcefficiency_l2()
 {
  local -n PARAMETER_ARRAY_ARCSTATS="$1"
  local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
