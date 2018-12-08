@@ -20,12 +20,7 @@ declare -A GLOBAL_ARRAY_ARCSTATS
 declare -A GLOBAL_ARRAY_ARCSTATSLOG
 declare -A GLOBAL_ARRAY_MEMINFO
 
-
-
-#echo -e "
-#ARC log date:
-# \u279f $GLOBAL_STRING_FIRSTLINE"
-
+SHELL_STRING_COMMAND="$1"
 
 case "$SHELL_STRING_COMMAND" in
  "writelog")
@@ -57,6 +52,7 @@ case "$SHELL_STRING_COMMAND" in
   main_print_zpool
   main_print_memory
 
+  main_print_arcstatslogdate "$GLOBAL_STRING_FIRSTLINE" "GLOBAL_ARRAY_ARCSTATSLOG"
   main_print_arcsize "$((${GLOBAL_ARRAY_MEMINFO[MemTotal]} * 1024))" "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
   main_print_arcefficiency "GLOBAL_ARRAY_ARCSTATS" "GLOBAL_ARRAY_ARCSTATSLOG"
   ;;

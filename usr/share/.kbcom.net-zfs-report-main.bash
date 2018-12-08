@@ -14,6 +14,19 @@ main_print_memory()
  print_system_memory "GLOBAL_ARRAY_MEMINFO"
 }
 
+main_print_arcstatslogdate()
+{
+ local PARAMETER_STRING_FIRSTLINE="$1"
+ local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
+
+ if (( "${#PARAMETER_ARRAY_ARCSTATSLOG[@]}" ))
+ then
+  echo -e "
+ARC log date:
+ \u279f $PARAMETER_STRING_FIRSTLINE"
+ fi
+}
+
 main_print_arcsize()
 {
  local PARAMETER_INTEGER_MEMORYSIZE="$1"

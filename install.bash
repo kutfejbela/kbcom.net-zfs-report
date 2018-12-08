@@ -111,8 +111,6 @@ fi
 echo "Create $GLOBAL_FOLDER_INSTANCE/run.bash file..."
 echo "#!/bin/bash
 
-#!/bin/bash
-
 CONFIG_FOLDER_MAIN=\"$GLOBAL_FOLDER_INSTANCE\"
 
 source \"\$CONFIG_FOLDER_MAIN/etc/kbcom.net-zfs-report.conf\"
