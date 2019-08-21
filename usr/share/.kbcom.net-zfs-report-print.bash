@@ -92,6 +92,11 @@ print_zpool_verbosediostat()
  "$CONFIG_EXTERNALCOMMAND_ZPOOL" iostat -v
 }
 
+print_zfs_list()
+{
+ "$CONFIG_EXTERNALCOMMAND_ZFS" list
+}
+
 print_system_memory()
 {
  local -n PARAMETER_ARRAY_MEMINFO="$1"
@@ -617,7 +622,7 @@ ARC Efficiency - Cache Misses by Data Type:
  fi
 }
 
-print_arcefficiency_l2()
+print_arc_efficiencyl2()
 {
  local -n PARAMETER_ARRAY_ARCSTATS="$1"
  local -n PARAMETER_ARRAY_ARCSTATSLOG="$2"
