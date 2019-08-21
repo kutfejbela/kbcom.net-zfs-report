@@ -19,8 +19,6 @@ source "$GLOBAL_FOLDER_SCRIPT/.kbcom.net-zfs-report-write.bash"
 
 print_zpool_status
 echo
-print_zpool_verbosediostat
-echo
 print_zfs_list
 echo
 

@@ -87,11 +87,6 @@ print_zpool_status()
  "$CONFIG_EXTERNALCOMMAND_ZPOOL" status
 }
 
-print_zpool_verbosediostat()
-{
- "$CONFIG_EXTERNALCOMMAND_ZPOOL" iostat -v
-}
-
 print_zfs_list()
 {
  "$CONFIG_EXTERNALCOMMAND_ZFS" list
